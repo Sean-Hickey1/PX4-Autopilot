@@ -1,6 +1,6 @@
 /****************************************************************************
  *
- *   Copyright (c) 2018-2023 PX4 Development Team. All rights reserved.
+ *   Copyright (c) 2018-2026 PX4 Development Team. All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
  * modification, are permitted provided that the following conditions
@@ -106,6 +106,7 @@ protected:
 	bool _generateHeadingAlongTraj(); /**< Generates heading along trajectory. */
 	bool isTargetModified() const;
 	void _updateTrajConstraints();
+	void _lockTakeoffXY(matrix::Vector3f &target); /**< vertical lift-off then locked XY, see .cpp */
 
 	void rcHelpModifyYaw(float &yaw_sp);
 
@@ -179,6 +180,10 @@ protected:
 private:
 	matrix::Vector2f _lock_position_xy{NAN, NAN}; /**< if no valid triplet is received, lock positition to current position */
 	bool _yaw_lock{false}; /**< if within acceptance radius, lock yaw to current yaw */
+
+	// Lift-off XY held during takeoff so the vehicle climbs vertically off a (moving)
+	// platform; captured below MPC_LAND_ALT1, then frozen for the rest of the climb. See _lockTakeoffXY().
+	matrix::Vector2f _takeoff_locked_xy{NAN, NAN}; /**< lift-off XY, refreshed each cycle below MPC_LAND_ALT1 then frozen for the rest of the climb */
 
 	matrix::Vector3f _triplet_previous; ///< previous waypoint in triplet from navigator
 	matrix::Vector3f _triplet_current; ///< current waypoint in triplet from navigator
